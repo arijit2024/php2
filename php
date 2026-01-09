@@ -97,3 +97,107 @@ $conn->query("DELETE FROM users WHERE id=$id");
 
 header("Location: index.php");
 ?>
+
+
+
+
+
+<!-- //////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////// -->
+
+
+<!-- ////////////////db.php/////////////////////// -->
+<?php
+$conn = mysqli_connect("localhost", "root", "", "datas");
+if (!$conn) {
+    die("Database connection failed");
+}
+session_start();
+?>
+
+<!-- ////////////////////////////register.php///////////////////////////// -->
+<?php
+include "db.php";
+
+if (isset($_POST['register'])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    mysqli_query($conn,
+        "INSERT INTO users (username,password)
+         VALUES ('$username','$password')");
+
+    header("Location: login.php");
+}
+?>
+
+<h3>Register</h3>
+
+<form method="post">
+    Username:
+    <input type="text" name="username" required><br><br>
+
+    Password:
+    <input type="password" name="password" required><br><br>
+
+    <button name="register">Register</button>
+</form>
+
+<a href="login.php">Login</a>
+
+
+<!-- //////////////////////////////////////login.php//////////////////////////////////////////// -->
+<?php
+include "db.php";
+
+if (isset($_POST['login'])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    $check = mysqli_query($conn,
+        "SELECT * FROM users
+         WHERE username='$username' AND password='$password'");
+
+    if (mysqli_num_rows($check) == 1) {
+        $_SESSION['user'] = $username;
+        header("Location: index.php");
+    } else {
+        echo "Wrong username or password";
+    }
+}
+?>
+
+<h3>Login</h3>
+
+<form method="post">
+    Username:
+    <input type="text" name="username" required><br><br>
+
+    Password:
+    <input type="password" name="password" required><br><br>
+
+    <button name="login">Login</button>
+</form>
+
+<a href="register.php">Register</a>
+
+<!-- ////////////////////////////////////////////index.php//////////////////////////////////////////// -->
+<?php
+include "db.php";
+
+if (!isset($_SESSION['user'])) {
+    header("Location: login.php");
+}
+?>
+
+<h2>Welcome <?= $_SESSION['user'] ?></h2>
+
+<a href="logout.php">Logout</a>
+
+<!-- /////////////////////////////////logout.php///////////////////////////////////////// -->
+<?php
+session_start();
+session_destroy();
+header("Location: login.php");
+?>
